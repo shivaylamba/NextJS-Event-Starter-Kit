@@ -88,13 +88,13 @@ const seed = async () => {
     }
   });
 
-  let newArray: any[] = [];
+  const newArray: any[] = [];
   dataStages.data.allStages.forEach((schedule: any, i1: number) => {
     schedule.schedule.forEach((sch: any, i2: number) => {
       newArray.push({
         ...sch,
         ...schedule,
-        id: schedule.id + i1 + i2,
+        id: `${schedule.id}${i1}${i2}`,
         schedule: []
       });
     });
