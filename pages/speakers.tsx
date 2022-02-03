@@ -14,45 +14,55 @@
  * limitations under the License.
  */
 
-import { GetStaticProps } from 'next';
-
 import Page from '@components/page';
 import SpeakersGrid from '@components/speakers-grid';
 import Layout from '@components/layout';
 import Header from '@components/header';
-import SearchSpeakers from '@components/searchSpeakers';
 
-import { getAllSpeakers } from '@lib/cms-api';
-import { Speaker } from '@lib/types';
+import { InstantSearch, SearchBox, Hits, connectStateResults } from 'react-instantsearch-dom';
+import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
+
 import { META_DESCRIPTION } from '@lib/constants';
+import styles from '../components/conf-entry.module.css';
 
-type Props = {
-  speakers: Speaker[];
-};
+const searchClient = instantMeiliSearch(
+  'https://ms-283e6b2b3ca9-142.saas.meili.dev',
+  '069e16039793773980e1af4edd42d89734aea5e8'
+);
 
-export default function Speakers({ speakers }: Props) {
+const Results = connectStateResults(({ searchState, searchResults, children }: any) => {
+  return searchResults && searchResults.nbHits !== 0 ? (
+    children
+  ) : (
+    <p className={styles.paragraph}>No results have been found for {searchState.query}.</p>
+  );
+});
+
+export default function Speakers() {
   const meta = {
     title: 'Speakers - Virtual Event Starter Kit',
     description: META_DESCRIPTION
   };
+
   return (
     <Page meta={meta}>
       <Layout>
-        <SearchSpeakers isSpeaker />
         <Header hero="Speakers" description={meta.description} />
-        <SpeakersGrid speakers={speakers} />
+        <InstantSearch indexName={'speaker'} searchClient={searchClient}>
+          <div className={styles.form}>
+            <div className={`${styles['form-row']} ${styles.relative}`}>
+              <label htmlFor="email-input-field" className={styles['input-label']}>
+                <SearchBox />
+              </label>
+            </div>
+          </div>
+          <div className="speakers-grid">
+            <Results>
+              <Hits hitComponent={SpeakersGrid} />
+            </Results>
+          </div>
+        </InstantSearch>
       </Layout>
     </Page>
   );
 }
-
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  const speakers = await getAllSpeakers();
-
-  return {
-    props: {
-      speakers
-    },
-    revalidate: 60
-  };
-};

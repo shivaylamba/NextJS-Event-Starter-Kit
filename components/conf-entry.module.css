@@ -182,6 +182,11 @@
   overflow: hidden;
 }
 
+.paragraph {
+  padding: 0 1rem;
+  text-align: center;
+}
+
 @media (min-width: 1200px) {
   .form-row {
     margin: 0;

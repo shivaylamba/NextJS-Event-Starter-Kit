@@ -44,15 +44,11 @@ function StageRow({ stage }: { stage: Stage }) {
   );
 }
 
-type Props = {
-  allStages: Stage[];
-};
-
-export default function Schedule({ allStages }: Props) {
+export default function Schedule({ allStages }: any) {
   return (
     <div className={styles.container}>
       <div className={styles['row-wrapper']}>
-        {allStages.map(stage => (
+        {allStages.map((stage: any) => (
           <StageRow key={stage.slug} stage={stage} />
         ))}
       </div>

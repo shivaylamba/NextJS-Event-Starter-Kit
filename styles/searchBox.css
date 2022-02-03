@@ -11,7 +11,8 @@
   font-family: inherit;
 }
 
-.ais-SearchBox-reset,.ais-SearchBox-submit {
+.ais-SearchBox-reset,
+.ais-SearchBox-submit {
   display: none;
 }
 
@@ -39,7 +40,8 @@
   border-top: 1px solid #999;
 }
 
-.ais-Highlight-highlighted,.ais-Snippet-highlighted {
+.ais-Highlight-highlighted,
+.ais-Snippet-highlighted {
   text-decoration: underline;
   color: #fff;
 }
@@ -50,4 +52,32 @@
 
 .ais-Highlight-nonHighlighted {
   color: #fff;
+}
+
+.speakers-grid .ais-Hits-list {
+  margin: 50px auto;
+  padding: 0 24px;
+  width: 100%;
+  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 24px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.speakers-grid .ais-Hits-item {
+  border-top: none;
+}
+
+@media (min-width: 768px) {
+  .speakers-grid .ais-Hits-list {
+    padding: 0 var(--space-8x);
+  }
+}
+
+.speakers-grid .ais-Hits-list::-webkit-scrollbar {
+  display: none;
 }

@@ -14,23 +14,68 @@
  * limitations under the License.
  */
 
-import { GetStaticProps } from 'next';
-
 import Page from '@components/page';
 import Schedule from '@components/schedule';
 import Layout from '@components/layout';
 import Header from '@components/header';
-import SearchSpeakers from '@components/searchSpeakers';
+import styles from '../components/conf-entry.module.css';
 
-import { getAllStages } from '@lib/cms-api';
-import { Stage } from '@lib/types';
+import { InstantSearch, SearchBox, Configure, connectStateResults } from 'react-instantsearch-dom';
+import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
+
 import { META_DESCRIPTION } from '@lib/constants';
 
-type Props = {
-  allStages: Stage[];
-};
+const Results = connectStateResults(({ searchState, searchResults }: any) => {
+  const map = new Map();
+  const hits = searchResults?.hits;
 
-export default function SchedulePage({ allStages }: Props) {
+  if (hits && hits.length > 0) {
+    hits.forEach((hit: any) => {
+      const { title, start, end, speaker, id, name, slug, stream, discord } = hit;
+      const schedule = {
+        title,
+        start,
+        end,
+        speaker
+      };
+      const obj = {
+        id,
+        name,
+        slug,
+        stream,
+        discord,
+        schedule: [schedule]
+      };
+
+      if (map.has(hit.name)) {
+        const existingObj = { ...map.get(hit.name) };
+        existingObj.schedule.push(schedule);
+        map.set(hit.name, existingObj);
+      } else {
+        map.set(hit.name, obj);
+      }
+    });
+  }
+
+  const stages = Object.values(Object.fromEntries(map)).sort((a: any, b: any) => {
+    const textA = a?.name.toUpperCase();
+    const textB = b?.name.toUpperCase();
+    return textA < textB ? -1 : textA > textB ? 1 : 0;
+  });
+
+  return searchResults && searchResults.nbHits !== 0 ? (
+    <Schedule allStages={stages} />
+  ) : (
+    <p className={styles.paragraph}>No results have been found for {searchState.query}.</p>
+  );
+});
+
+const searchClient = instantMeiliSearch(
+  'https://ms-283e6b2b3ca9-142.saas.meili.dev',
+  '069e16039793773980e1af4edd42d89734aea5e8'
+);
+
+export default function SchedulePage() {
   const meta = {
     title: 'Schedule - Virtual Event Starter Kit',
     description: META_DESCRIPTION
@@ -39,21 +84,26 @@ export default function SchedulePage({ allStages }: Props) {
   return (
     <Page meta={meta}>
       <Layout>
-        <SearchSpeakers />
         <Header hero="Schedule" description={meta.description} />
-        <Schedule allStages={allStages} />
+        <InstantSearch indexName="schedule" searchClient={searchClient}>
+          <Configure
+            hitsPerPage={30}
+            attributesToSnippet={['bio:50']}
+            snippetEllipsisText={'...'}
+          />
+          <div className={styles.form}>
+            <div className={`${styles['form-row']} ${styles.relative}`}>
+              <label htmlFor="email-input-field" className={styles['input-label']}>
+                <SearchBox />
+              </label>
+            </div>
+          </div>
+          <div className="speakers-grid">
+            <Results />
+          </div>
+        </InstantSearch>
+        {/* <Schedule /> */}
       </Layout>
     </Page>
   );
 }
-
-export const getStaticProps: GetStaticProps<Props> = async () => {
-  const allStages = await getAllStages();
-
-  return {
-    props: {
-      allStages
-    },
-    revalidate: 60
-  };
-};

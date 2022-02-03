@@ -1,36 +1,13 @@
-import { MeiliSearch } from "meilisearch";
-import axios from "axios";
+import { MeiliSearch } from 'meilisearch';
+import axios from 'axios';
 
 const client = new MeiliSearch({
-  host: "https://ms-283e6b2b3ca9-142.saas.meili.dev",
-  apiKey: "069e16039793773980e1af4edd42d89734aea5e8",
+  host: 'https://ms-283e6b2b3ca9-142.saas.meili.dev',
+  apiKey: '069e16039793773980e1af4edd42d89734aea5e8'
 });
 
-const index = client.index("speaker");
-
-interface SpeakerInfo {
-  id: string;
-  name: string;
-  bio: string;
-  title: string;
-  slug: string;
-  twitter: string;
-  github: string;
-  company: string;
-  talk: {
-    title: string;
-    description: string;
-  };
-  image: {
-    url: string;
-    blurDataURL: string;
-  };
-  imagesquare: {
-    url: string;
-    blurDataURL: string;
-  }
-}
-
+const indexSchedule = client.index('schedule');
+const indexSpeaker = client.index('speaker');
 
 const stagesGraphQL = `
 {
@@ -47,6 +24,9 @@ const stagesGraphQL = `
       speaker {
         name
         slug
+        talk {
+          description
+        }
         image {
           url(imgixParams: {fm: jpg, fit: crop, w: 120, h: 120})
           blurDataURL: blurUpThumb
@@ -83,28 +63,54 @@ const speakerGraphQL = `
 }`;
 
 const seed = async () => {
-  await index.delete();
+  await indexSchedule.delete();
+  await indexSpeaker.delete();
 
-  const { data } = await axios({
-    url: "https://graphql.datocms.com/",
-    method: "POST",
+  const { data: dataStages } = await axios({
+    url: 'https://graphql.datocms.com/',
+    method: 'POST',
     headers: {
-      Authorization: "Bearer a45ce78f9b2053c229bbfe9e3fca7b",
+      Authorization: 'Bearer a45ce78f9b2053c229bbfe9e3fca7b'
     },
     data: {
-      query: speakerGraphQL,
-    },
+      query: stagesGraphQL
+    }
   });
 
-  await index.addDocuments(
-    data.data.allSpeakers.map((speaker: SpeakerInfo) => ({
+  const { data: dataSpeaker } = await axios({
+    url: 'https://graphql.datocms.com/',
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer a45ce78f9b2053c229bbfe9e3fca7b'
+    },
+    data: {
+      query: speakerGraphQL
+    }
+  });
+
+  let newArray: any[] = [];
+  dataStages.data.allStages.forEach((schedule: any, i1: number) => {
+    schedule.schedule.forEach((sch: any, i2: number) => {
+      newArray.push({
+        ...sch,
+        ...schedule,
+        id: schedule.id + i1 + i2,
+        schedule: []
+      });
+    });
+  });
+
+  await indexSchedule.addDocuments(newArray);
+
+  await indexSpeaker.addDocuments(
+    dataSpeaker.data.allSpeakers.map((speaker: any) => ({
       ...speaker,
       talkTitle: speaker.talk.title,
-      talkDescription: speaker.talk.description,
+      talkDescription: speaker.talk.description
     }))
   );
 
-  console.log("Document Added")
+  console.log('Document Added');
 };
 
 seed();

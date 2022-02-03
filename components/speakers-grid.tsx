@@ -17,44 +17,46 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Speaker } from '@lib/types';
+import { Highlight, Snippet } from 'react-instantsearch-dom';
 import styles from './speakers-grid.module.css';
 
 type Props = {
-  speakers: Speaker[];
+  hit: Speaker;
 };
 
-export default function SpeakersGrid({ speakers }: Props) {
+export default function SpeakersGrid({ hit }: Props) {
   return (
-    <div className={styles.grid}>
-      {speakers.map(speaker => (
-        <Link key={speaker.name} href={`/speakers/${speaker.slug}`}>
-          <a role="button" tabIndex={0} className={styles.card}>
-            <div className={styles.imageWrapper}>
-              <Image
-                alt={speaker.name}
-                src={speaker.image.url}
-                className={styles.image}
-                loading="lazy"
-                quality="50"
-                title={speaker.name}
-                placeholder={speaker.image.blurDataURL ? "blur" : "empty"}
-                blurDataURL={speaker.image.blurDataURL}
-                width={300}
-                height={300}
-              />
-            </div>
-            <div className={styles.cardBody}>
-              <div>
-                <h2 className={styles.name}>{speaker.name}</h2>
-                <p className={styles.title}>
-                  {`${speaker.title} @ `}
-                  <span className={styles.company}>{speaker.company}</span>
-                </p>
-              </div>
-            </div>
-          </a>
-        </Link>
-      ))}
-    </div>
+    <Link key={hit.name} href={`/speakers/${hit.slug}`}>
+      <a role="button" tabIndex={0} className={styles.card}>
+        <div className={styles.imageWrapper}>
+          <Image
+            alt={hit.name}
+            src={hit.image.url}
+            className={styles.image}
+            loading="lazy"
+            quality="50"
+            title={hit.name}
+            placeholder={hit.image.blurDataURL ? 'blur' : 'empty'}
+            blurDataURL={hit.image.blurDataURL}
+            width={300}
+            height={300}
+          />
+        </div>
+        <div className={styles.cardBody}>
+          <div>
+            <h2 className={styles.name}>
+              <Highlight attribute="name" hit={hit} />
+            </h2>
+            <p className={styles.title}>
+              <Snippet attribute="title" hit={hit} />
+              {' @ '}
+              <span className={styles.company}>
+                <Snippet attribute="company" hit={hit} />
+              </span>
+            </p>
+          </div>
+        </div>
+      </a>
+    </Link>
   );
 }
