@@ -18,7 +18,7 @@ import Page from '@components/page';
 import Schedule from '@components/schedule';
 import Layout from '@components/layout';
 import Header from '@components/header';
-import styles from '../components/conf-entry.module.css';
+import styles from '../components/header.module.css';
 
 import { InstantSearch, SearchBox, Configure, connectStateResults } from 'react-instantsearch-dom';
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
@@ -84,25 +84,18 @@ export default function SchedulePage() {
   return (
     <Page meta={meta}>
       <Layout>
-        <Header hero="Schedule" description={meta.description} />
         <InstantSearch indexName="schedule" searchClient={searchClient}>
+          <Header hero="Schedule" description={meta.description} isSearchable />
           <Configure
             hitsPerPage={30}
             attributesToSnippet={['bio:50']}
             snippetEllipsisText={'...'}
           />
-          <div className={styles.form}>
-            <div className={`${styles['form-row']} ${styles.relative}`}>
-              <label htmlFor="email-input-field" className={styles['input-label']}>
-                <SearchBox />
-              </label>
-            </div>
-          </div>
+
           <div className="speakers-grid">
             <Results />
           </div>
         </InstantSearch>
-        {/* <Schedule /> */}
       </Layout>
     </Page>
   );

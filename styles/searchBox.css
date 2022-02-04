@@ -1,6 +1,7 @@
 .ais-SearchBox-input {
   border: none;
   width: 100%;
+  max-width: 470px;
   background: transparent;
   outline: none;
   height: 56px;

@@ -47,15 +47,8 @@ export default function Speakers() {
   return (
     <Page meta={meta}>
       <Layout>
-        <Header hero="Speakers" description={meta.description} />
         <InstantSearch indexName={'speaker'} searchClient={searchClient}>
-          <div className={styles.form}>
-            <div className={`${styles['form-row']} ${styles.relative}`}>
-              <label htmlFor="email-input-field" className={styles['input-label']}>
-                <SearchBox />
-              </label>
-            </div>
-          </div>
+          <Header hero="Speakers" description={meta.description} isSearchable />
           <div className="speakers-grid">
             <Results>
               <Hits hitComponent={SpeakersGrid} />

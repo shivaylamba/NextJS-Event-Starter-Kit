@@ -26,7 +26,7 @@ type Props = {
 
 export default function SpeakersGrid({ hit }: Props) {
   return (
-    <Link key={hit.name} href={`/speakers/${hit.slug}`}>
+    <Link key={hit.id} href={`/speakers/${hit.slug}`}>
       <a role="button" tabIndex={0} className={styles.card}>
         <div className={styles.imageWrapper}>
           <Image

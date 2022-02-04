@@ -13,18 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { SearchBox } from 'react-instantsearch-dom';
 
 import styles from './header.module.css';
 
 type Props = {
   hero: React.ReactNode;
   description: React.ReactNode;
+  isSearchable?: boolean;
 };
 
-export default function Header({ hero, description }: Props) {
+export default function Header({ hero, description, isSearchable }: Props) {
   return (
     <>
-      <h1 className={styles.hero}>{hero}</h1>
+      <div className={styles.headerWrapper}>
+        <h1 className={styles.hero}>{hero}</h1>
+        {isSearchable && (
+          <div className={styles.form}>
+            <div className={`${styles['form-row']} ${styles.relative}`}>
+              <label htmlFor="email-input-field" className={styles['input-label']}>
+                <SearchBox />
+              </label>
+            </div>
+          </div>
+        )}
+      </div>
       <p className={styles.description}>{description}</p>
     </>
   );
