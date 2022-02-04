@@ -20,7 +20,7 @@ export type Image = {
 };
 
 export type Speaker = {
-  id: string;
+  id?: string;
   name: string;
   bio: string;
   title: string;

@@ -19,7 +19,7 @@ import SpeakersGrid from '@components/speakers-grid';
 import Layout from '@components/layout';
 import Header from '@components/header';
 
-import { InstantSearch, SearchBox, Hits, connectStateResults } from 'react-instantsearch-dom';
+import { InstantSearch, Hits, connectStateResults } from 'react-instantsearch-dom';
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
 import { META_DESCRIPTION } from '@lib/constants';

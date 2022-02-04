@@ -20,7 +20,7 @@ import Layout from '@components/layout';
 import Header from '@components/header';
 import styles from '../components/header.module.css';
 
-import { InstantSearch, SearchBox, Configure, connectStateResults } from 'react-instantsearch-dom';
+import { InstantSearch, Configure, connectStateResults } from 'react-instantsearch-dom';
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
 import { META_DESCRIPTION } from '@lib/constants';
