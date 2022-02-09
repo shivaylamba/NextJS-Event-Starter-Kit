@@ -16,12 +16,15 @@
 
 import Link from 'next/link';
 import cn from 'classnames';
+import { InstantSearch } from 'react-instantsearch-dom';
 import { useRouter } from 'next/router';
 import { SkipNavContent } from '@reach/skip-nav';
 import { NAVIGATION } from '@lib/constants';
+import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 import styles from './layout.module.css';
 import Logo from './icons/icon-logo';
 import MobileMenu from './mobile-menu';
+import AllSearch from './searchComponent';
 import Footer, { HostedByVercel } from './footer';
 import ViewSource from '@components/view-source';
 
@@ -35,6 +38,11 @@ type Props = {
 export default function Layout({ children, className, hideNav, layoutStyles }: Props) {
   const router = useRouter();
   const activeRoute = router.asPath;
+
+  const searchClient = instantMeiliSearch(
+    'https://ms-283e6b2b3ca9-142.saas.meili.dev',
+    '069e16039793773980e1af4edd42d89734aea5e8'
+  );
 
   return (
     <>
@@ -64,6 +72,10 @@ export default function Layout({ children, className, hideNav, layoutStyles }: P
                 </Link>
               ))}
             </div>
+            <InstantSearch indexName={'all'} searchClient={searchClient}>
+              <AllSearch />
+            </InstantSearch>
+
             <div className={cn(styles['header-right'])}>
               <HostedByVercel />
             </div>

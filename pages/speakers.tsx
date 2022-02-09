@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+import { useState } from 'react';
 import Page from '@components/page';
 import SpeakersGrid from '@components/speakers-grid';
 import Layout from '@components/layout';
@@ -31,11 +31,17 @@ const searchClient = instantMeiliSearch(
 );
 
 const Results = connectStateResults(({ searchState, searchResults, children }: any) => {
-  return searchResults && searchResults.nbHits !== 0 ? (
-    children
-  ) : (
-    <p className={styles.paragraph}>No results have been found for {searchState.query}.</p>
-  );
+  if (searchResults && searchResults.nbHits !== 0) {
+    return <SpeakersGrid hits={searchResults.hits} />;
+    // <div className={styles.grid}>
+    //   {[...searchResults.hits].map((hit: any) => (
+    //     <div className="hit-transition">
+    //       <SpeakersGrid hit={hit} />
+    //     </div>
+    //   ))}
+    // </div>
+  }
+  return <p className={styles.paragraph}>No results have been found</p>;
 });
 
 export default function Speakers() {
@@ -49,11 +55,9 @@ export default function Speakers() {
       <Layout>
         <InstantSearch indexName={'speaker'} searchClient={searchClient}>
           <Header hero="Speakers" description={meta.description} isSearchable />
-          <div className="speakers-grid">
-            <Results>
-              <Hits hitComponent={SpeakersGrid} />
-            </Results>
-          </div>
+          <Results />
+          {/* <Hits hitComponent={SpeakersGrid} />
+          </Results> */}
         </InstantSearch>
       </Layout>
     </Page>
