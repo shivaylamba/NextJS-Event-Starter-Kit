@@ -13,29 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import Page from '@components/page';
 import SpeakersGrid from '@components/speakers-grid';
 import Layout from '@components/layout';
 import Header from '@components/header';
 
-import { InstantSearch, Hits, connectStateResults } from 'react-instantsearch-dom';
+import { InstantSearch, connectStateResults } from 'react-instantsearch-dom';
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
 import { META_DESCRIPTION } from '@lib/constants';
 import styles from '../components/conf-entry.module.css';
+import Loader from '@components/loader/loader';
 
 const searchClient = instantMeiliSearch(
   'https://ms-283e6b2b3ca9-142.saas.meili.dev',
   '069e16039793773980e1af4edd42d89734aea5e8'
 );
 
-const Results = connectStateResults(({ searchState, searchResults, children }: any) => {
-  return searchResults && searchResults.nbHits !== 0 ? (
-    children
-  ) : (
-    <p className={styles.paragraph}>No results have been found for {searchState.query}.</p>
-  );
+const Results = connectStateResults(({ searchResults, searching }: any) => {
+  if (!searchResults && searching) {
+    return <Loader />;
+  }
+  if (searchResults && searchResults.nbHits !== 0) {
+    return <SpeakersGrid hits={searchResults.hits} />;
+  }
+  return <p className={styles.paragraph}>No results have been found</p>;
 });
 
 export default function Speakers() {
@@ -49,11 +51,7 @@ export default function Speakers() {
       <Layout>
         <InstantSearch indexName={'speaker'} searchClient={searchClient}>
           <Header hero="Speakers" description={meta.description} isSearchable />
-          <div className="speakers-grid">
-            <Results>
-              <Hits hitComponent={SpeakersGrid} />
-            </Results>
-          </div>
+          <Results />
         </InstantSearch>
       </Layout>
     </Page>

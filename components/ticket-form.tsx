@@ -86,80 +86,83 @@ export default function Form({ defaultUsername = '', setTicketGenerationState }:
         const windowWidth = 600;
         const windowHeight = 700;
         // https://stackoverflow.com/a/32261263/114157
-        const windowTop = window.top.outerHeight / 2 + window.top.screenY - 700 / 2;
-        const windowLeft = window.top.outerWidth / 2 + window.top.screenX - 600 / 2;
 
-        const openedWindow = window.open(
-          `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
-            process.env.NEXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID
-          )}`,
-          'githubOAuth',
-          `resizable,scrollbars,status,width=${windowWidth},height=${windowHeight},top=${windowTop},left=${windowLeft}`
-        );
+        if (window && window.top) {
+          const windowTop = window.top.outerHeight / 2 + window.top.screenY - 700 / 2;
+          const windowLeft = window.top.outerWidth / 2 + window.top.screenX - 600 / 2;
 
-        new Promise<GitHubOAuthData | undefined>(resolve => {
-          const interval = setInterval(() => {
-            if (!openedWindow || openedWindow.closed) {
+          const openedWindow = window.open(
+            `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(
+              process.env.NEXT_PUBLIC_GITHUB_OAUTH_CLIENT_ID
+            )}`,
+            'githubOAuth',
+            `resizable,scrollbars,status,width=${windowWidth},height=${windowHeight},top=${windowTop},left=${windowLeft}`
+          );
+
+          new Promise<GitHubOAuthData | undefined>(resolve => {
+            const interval = setInterval(() => {
+              if (!openedWindow || openedWindow.closed) {
+                clearInterval(interval);
+                resolve(undefined);
+              }
+            }, 250);
+
+            window.addEventListener('message', function onMessage(msgEvent) {
+              // When devtools is opened the message may be received multiple times
+              if (SITE_ORIGIN !== msgEvent.origin || !msgEvent.data.type) {
+                return;
+              }
               clearInterval(interval);
-              resolve(undefined);
-            }
-          }, 250);
-
-          window.addEventListener('message', function onMessage(msgEvent) {
-            // When devtools is opened the message may be received multiple times
-            if (SITE_ORIGIN !== msgEvent.origin || !msgEvent.data.type) {
-              return;
-            }
-            clearInterval(interval);
-            if (openedWindow) {
-              openedWindow.close();
-            }
-            resolve(msgEvent.data);
-          });
-        })
-          .then(async data => {
-            if (!data) {
-              setFormState('default');
-              setTicketGenerationState('default');
-              return;
-            }
-
-            let usernameFromResponse: string;
-            let name: string;
-            if (data.type === 'token') {
-              const res = await saveGithubToken({ id: userData.id, token: data.token });
-
-              if (!res.ok) {
-                throw new Error('Failed to store oauth result');
+              if (openedWindow) {
+                openedWindow.close();
+              }
+              resolve(msgEvent.data);
+            });
+          })
+            .then(async data => {
+              if (!data) {
+                setFormState('default');
+                setTicketGenerationState('default');
+                return;
               }
 
-              const responseJson = await res.json();
-              usernameFromResponse = responseJson.username;
-              name = responseJson.name;
-            } else {
-              usernameFromResponse = data.login;
-              name = data.name;
-            }
+              let usernameFromResponse: string;
+              let name: string;
+              if (data.type === 'token') {
+                const res = await saveGithubToken({ id: userData.id, token: data.token });
 
-            document.body.classList.add('ticket-generated');
-            setUserData({ ...userData, username: usernameFromResponse, name });
-            setUsername(usernameFromResponse);
-            setFormState('default');
-            setTicketGenerationState('default');
+                if (!res.ok) {
+                  throw new Error('Failed to store oauth result');
+                }
 
-            // Prefetch GitHub avatar
-            new Image().src = `https://github.com/${usernameFromResponse}.png`;
+                const responseJson = await res.json();
+                usernameFromResponse = responseJson.username;
+                name = responseJson.name;
+              } else {
+                usernameFromResponse = data.login;
+                name = data.name;
+              }
 
-            // Prefetch the twitter share URL to eagerly generate the page
-            fetch(`/tickets/${usernameFromResponse}`).catch(_ => {});
-          })
-          .catch(err => {
-            // eslint-disable-next-line no-console
-            console.error(err);
-            setFormState('error');
-            setErrorMsg('Error! Please try again.');
-            setTicketGenerationState('default');
-          });
+              document.body.classList.add('ticket-generated');
+              setUserData({ ...userData, username: usernameFromResponse, name });
+              setUsername(usernameFromResponse);
+              setFormState('default');
+              setTicketGenerationState('default');
+
+              // Prefetch GitHub avatar
+              new Image().src = `https://github.com/${usernameFromResponse}.png`;
+
+              // Prefetch the twitter share URL to eagerly generate the page
+              fetch(`/tickets/${usernameFromResponse}`).catch(_ => {});
+            })
+            .catch(err => {
+              // eslint-disable-next-line no-console
+              console.error(err);
+              setFormState('error');
+              setErrorMsg('Error! Please try again.');
+              setTicketGenerationState('default');
+            });
+        }
       }}
     >
       <div className={cn(formStyles['form-row'], ticketFormStyles['form-row'])}>

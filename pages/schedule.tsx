@@ -24,8 +24,13 @@ import { InstantSearch, Configure, connectStateResults } from 'react-instantsear
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
 import { META_DESCRIPTION } from '@lib/constants';
+import Loader from '@components/loader/loader';
 
-const Results = connectStateResults(({ searchState, searchResults }: any) => {
+const Results = connectStateResults(({ searchState, searchResults, searching }: any) => {
+  if (!searchResults && searching) {
+    return <Loader />;
+  }
+
   const map = new Map();
   const hits = searchResults?.hits;
 

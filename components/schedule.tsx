@@ -28,7 +28,7 @@ function StageRow({ stage }: { stage: Stage }) {
 
   return (
     <div key={stage.name} className={styles.row}>
-      <h3 className={cn(styles['stage-name'], styles[stage.slug])}>
+      <h3 className={cn(styles['stage-name'], styles[stage.slug], 'hit-transition')}>
         <span>{stage.name}</span>
       </h3>
       <div className={cn(styles.talks, styles[stage.slug])}>

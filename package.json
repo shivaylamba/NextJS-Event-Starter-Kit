@@ -13,7 +13,7 @@
     "dev": "next",
     "start": "next start",
     "build": "next build",
-    "seed": "cd lib && tsc meilisearch.ts && node meilisearch.js",
+    "seed": "cd lib && tsc meilisearch-all.ts && node meilisearch-all.js && rm -rf meilisearch-all.js",
     "license": "addlicense -l apache -c 'Vercel Inc.' components/**/* lib/**/* pages/**/* styles/**/* *.ts *.js"
   },
   "dependencies": {
@@ -23,6 +23,7 @@
     "@meilisearch/instant-meilisearch": "^0.6.0",
     "@reach/skip-nav": "0.12.1",
     "@types/react-instantsearch-dom": "^6.12.2",
+    "@types/react-modal": "^3.13.1",
     "chrome-aws-lambda": "5.5.0",
     "classnames": "2.2.6",
     "cookie": "0.4.1",
@@ -39,6 +40,7 @@
     "react-aria": "3.2.0",
     "react-dom": "^18.0.0-alpha-9c8161ba8-20211028",
     "react-instantsearch-dom": "^6.21.1",
+    "react-modal": "^3.14.4",
     "smoothscroll-polyfill": "0.4.4",
     "swr": "0.3.9",
     "validator": "13.5.2",

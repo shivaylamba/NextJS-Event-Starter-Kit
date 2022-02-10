@@ -46,7 +46,7 @@ export default function TalkCard({ talk: { title, speaker, start, end }, showTim
   const firstSpeakerLink = `/speakers/${speaker[0].slug}`;
 
   return (
-    <div key={title} className={styles.talk}>
+    <div key={title} className={`hit-transition ${styles.talk}`}>
       {showTime && <p className={styles.time}>{startAndEndTime || <>&nbsp;</>}</p>}
       <Link href={firstSpeakerLink}>
         <a

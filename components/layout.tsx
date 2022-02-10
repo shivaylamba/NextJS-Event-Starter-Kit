@@ -22,6 +22,7 @@ import { NAVIGATION } from '@lib/constants';
 import styles from './layout.module.css';
 import Logo from './icons/icon-logo';
 import MobileMenu from './mobile-menu';
+import AllSearch from './searchComponent/searchComponent';
 import Footer, { HostedByVercel } from './footer';
 import ViewSource from '@components/view-source';
 
@@ -50,6 +51,9 @@ export default function Layout({ children, className, hideNav, layoutStyles }: P
                   <Logo />
                 </a>
               </Link>
+              <div className={styles.mobileSearchAll}>
+                <AllSearch />
+              </div>
             </div>
             <div className={styles.tabs}>
               {NAVIGATION.map(({ name, route }) => (
@@ -64,8 +68,12 @@ export default function Layout({ children, className, hideNav, layoutStyles }: P
                 </Link>
               ))}
             </div>
-            <div className={cn(styles['header-right'])}>
-              <HostedByVercel />
+
+            <div className={styles.headerVercelSearchWrap}>
+              <AllSearch />
+              <div className={cn(styles['header-right'])}>
+                <HostedByVercel />
+              </div>
             </div>
           </header>
         )}
