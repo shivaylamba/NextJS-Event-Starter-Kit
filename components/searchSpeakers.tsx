@@ -10,8 +10,12 @@ import {
 import { instantMeiliSearch } from '@meilisearch/instant-meilisearch';
 
 import styles from './conf-entry.module.css';
+import Loader from './loader/loader';
 
-const searchClient = instantMeiliSearch("https://ms-283e6b2b3ca9-142.saas.meili.dev","069e16039793773980e1af4edd42d89734aea5e8")
+const searchClient = instantMeiliSearch(
+  'https://ms-283e6b2b3ca9-142.saas.meili.dev',
+  '069e16039793773980e1af4edd42d89734aea5e8'
+);
 
 const SpeakerHit = ({ hit }: any) => (
   <a href={`/speakers/${hit.slug}`} key={hit.id}>
@@ -19,9 +23,9 @@ const SpeakerHit = ({ hit }: any) => (
       <Highlight attribute="name" hit={hit} />
     </div>
     <div>
-      <Snippet 
-        attributesToSnippet={["bio:50"]}
-        snippetEllipsisText={"..."}
+      <Snippet
+        attributesToSnippet={['bio:50']}
+        snippetEllipsisText={'...'}
         attribute="bio"
         hit={hit}
       />
@@ -35,12 +39,12 @@ const ScheduleHit = ({ hit }: any) => (
       <Highlight attribute="talkTitle" hit={hit} />
     </div>
     <div className="speaker-detail-attribute">
-    - <Snippet attribute="name" hit={hit} />
+      - <Snippet attribute="name" hit={hit} />
     </div>
     <div>
-      <Snippet 
-        attributesToSnippet={["talkDescription:50"]}
-        snippetEllipsisText={"..."}
+      <Snippet
+        attributesToSnippet={['talkDescription:50']}
+        snippetEllipsisText={'...'}
         attribute="talkDescription"
         hit={hit}
       />
@@ -48,54 +52,47 @@ const ScheduleHit = ({ hit }: any) => (
   </a>
 );
 
-const SearchSpeakers = ({isSpeaker}:any) => {
-
+const SearchSpeakers = ({ isSpeaker }: any) => {
   const Results = connectStateResults(
-    ({ searchState, searchResults, children }: any) => {
+    ({ searchState, searchResults, children, searching }: any) => {
+      if (!searchResults && searching) {
+        return <Loader />;
+      }
       if (!searchState.query) {
         return null;
       }
 
-      return (
-        searchResults && searchResults.nbHits !== 0 ? (
-          children
-        ) : (
-          <div className="ais-search-list-absolute">
-            No results have been found for {searchState.query}.
-          </div>
-        )
-      )
+      return searchResults && searchResults.nbHits !== 0 ? (
+        children
+      ) : (
+        <div className="ais-search-list-absolute">
+          No results have been found for {searchState.query}.
+        </div>
+      );
     }
-      
   );
 
   return (
     <div className={styles.form}>
-        <div className={`${styles['form-row']} ${styles.relative}`}>
-          <label
-            htmlFor="email-input-field"
-            className={styles['input-label']}
-          >
-              <InstantSearch
-                indexName={"speaker"}
-                searchClient={searchClient}
-              >
-                <Configure
-                  hitsPerPage={3}
-                  attributesToSnippet={["bio:50"]}
-                  snippetEllipsisText={"..."}
-                />
-                <SearchBox />
-                <Results>
-                  <div className="ais-search-list-absolute">    
-                    <Hits hitComponent={isSpeaker ? SpeakerHit : ScheduleHit} />
-                  </div>
-                </Results>
-              </InstantSearch>
-          </label>
-        </div>
+      <div className={`${styles['form-row']} ${styles.relative}`}>
+        <label htmlFor="email-input-field" className={styles['input-label']}>
+          <InstantSearch indexName={'speaker'} searchClient={searchClient}>
+            <Configure
+              hitsPerPage={3}
+              attributesToSnippet={['bio:50']}
+              snippetEllipsisText={'...'}
+            />
+            <SearchBox showLoadingIndicator />
+            <Results>
+              <div className="ais-search-list-absolute">
+                <Hits hitComponent={isSpeaker ? SpeakerHit : ScheduleHit} />
+              </div>
+            </Results>
+          </InstantSearch>
+        </label>
       </div>
-  )
-}
+    </div>
+  );
+};
 
 export default SearchSpeakers;
