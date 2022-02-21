@@ -171,158 +171,28 @@ For Next.js Conf, we created a Discord channel for each sponsor.
 
 Networking is vital for in-person conferences and replicating that environment virtually poses a challege. For the Career Fair, this starter provides the ability to list job postings, as well as an external link to talk with the company's recruiters on Discord.
 
-### Adding Discord Chat
+## Adding Meilisearch to Event Starter Kit
 
-For Next.js Conf, we used Discord for conference attendees to chat. On each stage, we showed a highlighted message from the corresponding Discord channel. If a user in our allow list used the camera emoji (📸) it would show the message on the stage.
-
-If you'd like to add similar functionality to your conference, you can use the [API route](https://nextjs.org/docs/api-routes/introduction) below to fetch messages after creating a Discord bot. This API route is set up with the proper caching headers and ensures you won't get rate-limited with high traffic.
-
-```ts
-import ms from 'ms';
-import fetch, { Headers, RequestInit } from 'node-fetch';
-import { NextApiRequest, NextApiResponse } from 'next';
-
-interface Reaction {
-  emoji: { name: string };
-}
-
-interface Message {
-  id: string;
-  channel_id: string;
-  content: string;
-  timestamp: string;
-  author: {
-    username: string;
-  };
-  reactions?: Reaction[];
-}
-
-interface ReactionSelector {
-  id: string;
-}
-
-// After creating a bot, add the token as an environment var
-const { DISCORD_BOT_TOKEN } = process.env;
-
-// Number of seconds to cache the API response for
-const EXPIRES_SECONDS = 60;
-
-// Emoji that should be selected by a whitelisted user
-// in order for this API to return the message
-const EMOJI = '🎥';
-
-// Whitelisted user IDs that are allowed to add the emoji to influence this API
-const USERS = [
-  '752552204124291104' // username
-];
-
-// Discord base API URL
-const API = 'https://discordapp.com/api/';
-
-// Map of Stage names to Discord channel IDs
-const CHANNELS = new Map<string, string>([
-  ['a', '769350098697191515'],
-  ['c', '769350352226877549'],
-  ['m', '769350396623192074'],
-  ['e', '769350429644685351']
-]);
-
-const api = (url: string, opts: RequestInit = {}) => {
-  const headers = new Headers(opts.headers);
-  headers.set('Authorization', `Bot ${DISCORD_BOT_TOKEN}`);
-  headers.set('User-Agent', 'Discord Bot (https://yoursite.com/conf, v0.1)');
-
-  return fetch(`${API}${url}`, {
-    ...opts,
-    headers
-  });
-};
-
-async function getReactionSelectors(
-  channelId: string,
-  messageId: string,
-  emoji: string
-): Promise<ReactionSelector[]> {
-  const res = await api(
-    `channels/${channelId}/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`
-  );
-  if (!res.ok) {
-    throw new Error(`Failed to get message reactions: ${await res.text()} (${res.status})`);
-  }
-  return res.json();
-}
-
-async function getLatestMessageWithEmoji(
-  messages: Message[],
-  emoji: string,
-  usersWhitelist: string[]
-) {
-  for (const message of messages) {
-    if (!message.content.trim()) {
-      // Empty message, ignore
-      // You could also filter messages here
-      continue;
-    }
-    for (const reaction of message.reactions || []) {
-      if (reaction.emoji.name === emoji) {
-        const selectors = await getReactionSelectors(message.channel_id, message.id, emoji);
-        const selector = selectors.find(r => usersWhitelist.includes(r.id));
-        if (selector) {
-          // The correct emoji was added from a whitelisted user
-          return { message, selector };
-        }
-      }
-    }
-  }
-}
-
-export default async function getDiscordMessage(req: NextApiRequest, res: NextApiResponse) {
-  const { stage } = req.query;
-  if (typeof stage !== 'string') {
-    return res.status(400).json({ error: 'Query parameter "stage" must be a string' });
-  }
-
-  const channelId = CHANNELS.get(stage);
-  if (!channelId) {
-    return res.status(400).json({ error: `Invalid "stage": ${stage}` });
-  }
-
-  const apiRes = await api(`channels/${channelId}/messages`);
-  let messages: Message[] = [];
-  if (apiRes.status !== 429 && apiRes.ok) {
-    messages = await apiRes.json();
-  }
-
-  if (apiRes.status === 429) {
-    const reset = apiRes.headers.get('X-RateLimit-Reset-After') || 5;
-    res.setHeader(
-      'Cache-Control',
-      `s-maxage=${reset}, public, must-revalidate, stale-while-revalidate`
-    );
-  }
-
-  const messageToShow = await getLatestMessageWithEmoji(messages, EMOJI, USERS);
-  if (!messageToShow) {
-    return res.status(404).json({ error: 'Could not find message with emoji' });
-  }
-
-  const body = {
-    username: messageToShow.message.author.username,
-    content: messageToShow.message.content,
-    timestamp: messageToShow.message.timestamp
-  };
-
-  // Set caching headers
-  const expires = new Date(Date.now() + ms(`${EXPIRES_SECONDS}s`));
-  res.setHeader('Expires', expires.toUTCString());
-  res.setHeader(
-    'Cache-Control',
-    `s-maxage=${EXPIRES_SECONDS}, immutable, must-revalidate, stale-while-revalidate`
-  );
-
-  return res.status(200).json(body);
-}
+1. Clone the project
 ```
+git clone https://github.com/shivaylamba/NextJS-Event-Starter-Kit.git
+```
+
+2. Install all the dependencies for the project
+```
+yarn
+```
+
+3. Install and launch meilisearch server
+```
+# Install Meilisearch
+curl -L https://install.meilisearch.com | sh
+
+# Launch Meilisearch
+./meilisearch
+```
+
+4. 
 
 ### Demo
 
