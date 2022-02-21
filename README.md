@@ -192,8 +192,22 @@ curl -L https://install.meilisearch.com | sh
 ./meilisearch
 ```
 
-4. 
+4. Update the `NEXT_PUBLIC_HOST_NAME` and `NEXT_PUBLIC_API_KEY` in `.env` file
+```
+NEXT_PUBLIC_HOST_NAME=http://localhost:7777
 
-### Demo
+# Add Api key, if enabled
+NEXT_PUBLIC_API_KEY=<API_KEY>
+```
 
-The demo is available at https://demo.vercel.events. The data recorded or used on the demo may be removed by Vercel at any point.
+5. Open another terminal and seed the Meilisearch instance by:
+```
+yarn seed
+```
+
+6. Start the Nextjs server
+```
+yarn dev
+```
+
+Test out the server at http://localhost:3000
