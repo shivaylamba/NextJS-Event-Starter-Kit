@@ -2,8 +2,8 @@ import { MeiliSearch } from 'meilisearch';
 import axios from 'axios';
 
 const client = new MeiliSearch({
-  host: 'https://ms-283e6b2b3ca9-142.saas.meili.dev',
-  apiKey: '069e16039793773980e1af4edd42d89734aea5e8'
+  host: '<HOST_NAME>',
+  apiKey: '<API_KEY>'
 });
 
 const indexSchedule = client.index('schedule');
