@@ -26,8 +26,8 @@ import styles from '../components/conf-entry.module.css';
 import Loader from '@components/loader/loader';
 
 const searchClient = instantMeiliSearch(
-  'https://ms-283e6b2b3ca9-142.saas.meili.dev',
-  '069e16039793773980e1af4edd42d89734aea5e8'
+  process.env.NEXT_PUBLIC_HOST_NAME || '',
+  process.env.NEXT_PUBLIC_API_KEY
 );
 
 const Results = connectStateResults(({ searchResults, searching }: any) => {
